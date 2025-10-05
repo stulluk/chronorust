@@ -126,25 +126,29 @@ jobs:
     - name: Prepare Release Assets
       run: |
         mkdir -p release-assets
+        # Get version from Cargo.toml
+        VERSION=$(grep '^version = ' Cargo.toml | cut -d'"' -f2)
+        echo "Version: $VERSION"
+        
         for artifact in chronorust-*; do
           if [ -d "$artifact" ]; then
             cd "$artifact"
             for file in *; do
               if [ -f "$file" ]; then
-                # Rename files with proper extensions
+                # Rename files with proper extensions and version
                 if [[ "$file" == "chronorust" ]]; then
                   if [[ "$artifact" == *"windows"* ]]; then
-                    cp "$file" "../release-assets/chronorust-windows-x86_64.exe"
+                    cp "$file" "../release-assets/chronorust-v${VERSION}-windows-x86_64.exe"
                   elif [[ "$artifact" == *"macos"* ]]; then
-                    cp "$file" "../release-assets/chronorust-macos-x86_64"
+                    cp "$file" "../release-assets/chronorust-v${VERSION}-macos-x86_64"
                   elif [[ "$artifact" == *"static"* ]]; then
-                    cp "$file" "../release-assets/chronorust-linux-x86_64-static"
+                    cp "$file" "../release-assets/chronorust-v${VERSION}-linux-x86_64-static"
                   else
-                    cp "$file" "../release-assets/chronorust-linux-x86_64"
+                    cp "$file" "../release-assets/chronorust-v${VERSION}-linux-x86_64"
                   fi
                 elif [[ "$file" == "chronorust.exe" ]]; then
                   # Handle Windows .exe files
-                  cp "$file" "../release-assets/chronorust-windows-x86_64.exe"
+                  cp "$file" "../release-assets/chronorust-v${VERSION}-windows-x86_64.exe"
                 fi
               fi
             done

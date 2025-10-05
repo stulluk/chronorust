@@ -189,8 +189,43 @@ impl Chronometer {
 }
 
 fn main() -> io::Result<()> {
-    // Check for logging flag
+    // Check for help flag
     let args: Vec<String> = env::args().collect();
+    if args.contains(&"--help".to_string()) || args.contains(&"-h".to_string()) {
+        println!("ChronoRust v{} - High Precision Chronometer", env!("CARGO_PKG_VERSION"));
+        println!();
+        println!("A high-precision chronometer for Linux terminal built with Rust.");
+        println!("Provides millisecond-level timing accuracy and supports up to 99 hours of measurement.");
+        println!();
+        println!("USAGE:");
+        println!("    chronorust [OPTIONS]");
+        println!();
+        println!("OPTIONS:");
+        println!("    -C, --logging    Enable session logging");
+        println!("    -h, --help       Show this help message");
+        println!();
+        println!("CONTROLS:");
+        println!("    L               Record lap time");
+        println!("    R               Reset chronometer and restart");
+        println!("    S               Pause/Resume chronometer");
+        println!("    Q               Quit application");
+        println!();
+        println!("FEATURES:");
+        println!("    • High precision millisecond timing");
+        println!("    • Lap time recording with differences");
+        println!("    • Pause/Resume functionality");
+        println!("    • Optional session logging");
+        println!("    • Cross-platform support (Linux, Windows, macOS)");
+        println!();
+        println!("EXAMPLES:");
+        println!("    chronorust              # Start chronometer");
+        println!("    chronorust -C           # Start with logging enabled");
+        println!();
+        println!("For more information, visit: https://github.com/stulluk/chronorust");
+        return Ok(());
+    }
+
+    // Check for logging flag
     let enable_logging = args.contains(&"-C".to_string());
 
     if enable_logging {
