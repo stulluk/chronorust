@@ -266,14 +266,17 @@ fn ui(f: &mut Frame, chronometer: &Chronometer) {
         .split(f.size());
 
     // Title
-    let title = Paragraph::new(format!("ChronoRust v{} - High Precision Chronometer", env!("CARGO_PKG_VERSION")))
-        .style(
-            Style::default()
-                .fg(Color::Cyan)
-                .add_modifier(Modifier::BOLD),
-        )
-        .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL));
+    let title = Paragraph::new(format!(
+        "ChronoRust v{} - High Precision Chronometer",
+        env!("CARGO_PKG_VERSION")
+    ))
+    .style(
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
+    )
+    .alignment(Alignment::Center)
+    .block(Block::default().borders(Borders::ALL));
     f.render_widget(title, chunks[0]);
 
     // Time display
