@@ -54,19 +54,26 @@ impl Chronometer {
         let now = SystemTime::now();
         let duration = now.duration_since(UNIX_EPOCH).unwrap();
         let timestamp = duration.as_secs();
-        
+
         let datetime = chrono::DateTime::from_timestamp(timestamp as i64, 0).unwrap();
-        let filename = format!("ChronoRust-{}-log.txt", datetime.format("%d-%m-%y-%H-%M-%S"));
-        
+        let filename = format!(
+            "ChronoRust-{}-log.txt",
+            datetime.format("%d-%m-%y-%H-%M-%S")
+        );
+
         let file = File::create(&filename)?;
         self.log_file = Some(file);
-        
+
         // Write initial log entry
         if let Some(ref mut file) = self.log_file {
-            writeln!(file, "ChronoRust Session Started: {}", datetime.format("%Y-%m-%d %H:%M:%S"))?;
+            writeln!(
+                file,
+                "ChronoRust Session Started: {}",
+                datetime.format("%Y-%m-%d %H:%M:%S")
+            )?;
             writeln!(file, "================================================")?;
         }
-        
+
         Ok(())
     }
 
@@ -78,13 +85,15 @@ impl Chronometer {
         self.is_paused = false;
         self.paused_duration = Duration::new(0, 0);
         self.start_timestamp = SystemTime::now();
-        
+
         // Log reset event
         if let Some(ref mut file) = self.log_file {
             let now = SystemTime::now();
             let datetime = chrono::DateTime::from_timestamp(
-                now.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64, 0
-            ).unwrap();
+                now.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64,
+                0,
+            )
+            .unwrap();
             let _ = writeln!(file, "Reset at: {}", datetime.format("%Y-%m-%d %H:%M:%S"));
         }
     }
@@ -110,16 +119,20 @@ impl Chronometer {
             let lap_time_clone = lap_time.clone();
             self.lap_times.push(lap_time);
             self.lap_durations.push(elapsed);
-            
+
             // Log lap event
             if let Some(ref mut file) = self.log_file {
                 let now = SystemTime::now();
                 let datetime = chrono::DateTime::from_timestamp(
-                    now.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64, 0
-                ).unwrap();
-                let _ = writeln!(file, "Lap {} at: {} - Time: {}", 
-                    self.lap_times.len(), 
-                    datetime.format("%Y-%m-%d %H:%M:%S"), 
+                    now.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64,
+                    0,
+                )
+                .unwrap();
+                let _ = writeln!(
+                    file,
+                    "Lap {} at: {} - Time: {}",
+                    self.lap_times.len(),
+                    datetime.format("%Y-%m-%d %H:%M:%S"),
                     lap_time_clone
                 );
             }
@@ -159,18 +172,18 @@ impl Chronometer {
 
     fn get_lap_differences(&self) -> Vec<String> {
         let mut differences = Vec::new();
-        
+
         if self.lap_durations.len() <= 1 {
             return differences;
         }
-        
+
         for i in 1..self.lap_durations.len() {
             let prev_lap = self.lap_durations[i - 1];
             let current_lap = self.lap_durations[i];
             let diff = current_lap - prev_lap;
             differences.push(self.format_duration(diff));
         }
-        
+
         differences
     }
 }
@@ -179,7 +192,7 @@ fn main() -> io::Result<()> {
     // Check for logging flag
     let args: Vec<String> = env::args().collect();
     let enable_logging = args.contains(&"-C".to_string());
-    
+
     if enable_logging {
         println!("Logging enabled. Log file will be created in current directory.");
     }
@@ -192,12 +205,12 @@ fn main() -> io::Result<()> {
     let mut terminal = Terminal::new(backend)?;
 
     let mut chronometer = Chronometer::new();
-    
+
     // Enable logging if requested
     if enable_logging {
         chronometer.enable_logging()?;
     }
-    
+
     chronometer.start();
     let mut running = true;
 
@@ -254,7 +267,11 @@ fn ui(f: &mut Frame, chronometer: &Chronometer) {
 
     // Title
     let title = Paragraph::new("ChronoRust - High Precision Chronometer")
-        .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))
+        .style(
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        )
         .alignment(Alignment::Center)
         .block(Block::default().borders(Borders::ALL));
     f.render_widget(title, chunks[0]);
@@ -265,9 +282,13 @@ fn ui(f: &mut Frame, chronometer: &Chronometer) {
     } else {
         format!("⏱️  {}", chronometer.display())
     };
-    
+
     let time_paragraph = Paragraph::new(time_text)
-        .style(Style::default().fg(Color::Green).add_modifier(Modifier::BOLD))
+        .style(
+            Style::default()
+                .fg(Color::Green)
+                .add_modifier(Modifier::BOLD),
+        )
         .alignment(Alignment::Center)
         .block(Block::default().borders(Borders::ALL).title("Time"));
     f.render_widget(time_paragraph, chunks[1]);
@@ -275,19 +296,16 @@ fn ui(f: &mut Frame, chronometer: &Chronometer) {
     // Lap times with differences
     let mut lap_items: Vec<ListItem> = Vec::new();
     let differences = chronometer.get_lap_differences();
-    
+
     for (i, lap_time) in chronometer.lap_times.iter().enumerate() {
         let mut lap_text = format!("Lap {}: {}", i + 1, lap_time);
-        
+
         // Add difference if available
         if i > 0 && i - 1 < differences.len() {
             lap_text.push_str(&format!(" (Δ: {})", differences[i - 1]));
         }
-        
-        lap_items.push(
-            ListItem::new(lap_text)
-                .style(Style::default().fg(Color::Yellow))
-        );
+
+        lap_items.push(ListItem::new(lap_text).style(Style::default().fg(Color::Yellow)));
     }
 
     let lap_list = List::new(lap_items)
