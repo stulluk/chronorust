@@ -64,6 +64,9 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             artifact_name: chronorust-linux-x86_64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            artifact_name: chronorust-linux-x86_64-static
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact_name: chronorust-windows-x86_64
@@ -79,6 +82,10 @@ jobs:
     
     - name: Add target
       run: rustup target add ${{ matrix.target }}
+    
+    - name: Install musl tools (Linux only)
+      if: matrix.os == 'ubuntu-latest' && matrix.target == 'x86_64-unknown-linux-musl'
+      run: sudo apt update && sudo apt install -y musl-tools
     
     - name: Cache cargo registry
       uses: actions/cache@v3

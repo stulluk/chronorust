@@ -43,6 +43,23 @@ Or run the release binary:
 ./target/release/chronorust
 ```
 
+### Static Build (Portable)
+
+For a completely portable binary that works on any Linux system:
+
+```bash
+# Install musl tools
+sudo apt install musl-tools
+
+# Build static binary
+cargo build --release --target x86_64-unknown-linux-musl
+
+# Run static binary
+./target/x86_64-unknown-linux-musl/release/chronorust
+```
+
+The static binary is only ~1.1MB and requires no dependencies!
+
 ## Usage
 
 ### Controls
