@@ -15,6 +15,8 @@ A high-precision chronometer for Linux terminal built with Rust. This applicatio
 - **Keyboard Controls**: Simple key-based controls
 - **Cross-platform**: Works on Linux, Windows, and macOS
 - **Docker Support**: Containerized deployment
+- **Big Digits Display**: Large ASCII/Unicode characters for better visibility
+- **Terminal Compatibility**: Optimized for different terminal types
 
 ## Installation
 
@@ -59,6 +61,14 @@ cargo build --release --target x86_64-unknown-linux-musl
 ```
 
 The static binary is only ~1.1MB and requires no dependencies!
+
+### Terminal Compatibility
+
+ChronoRust automatically detects your platform and uses the best display method:
+
+- **Linux/macOS**: ASCII art characters for maximum compatibility
+- **Windows**: Unicode box drawing characters for better appearance
+- **All Platforms**: Fallback to standard text if needed
 
 ## Usage
 

@@ -17,6 +17,11 @@ use std::{
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
+mod big_digits;
+mod big_digits_unicode;
+use big_digits::format_big_time;
+use big_digits_unicode::format_big_time_unicode;
+
 struct Chronometer {
     start_time: Option<Instant>,
     lap_times: Vec<String>,
@@ -276,11 +281,21 @@ fn ui(f: &mut Frame, chronometer: &Chronometer) {
         .block(Block::default().borders(Borders::ALL));
     f.render_widget(title, chunks[0]);
 
-    // Time display
-    let time_text = if chronometer.is_paused {
-        format!("⏸️  {}", chronometer.display())
+    // Time display with big digits
+    let time_str = chronometer.display();
+    
+    // Choose big digit style based on platform
+    let big_time_lines = if cfg!(windows) {
+        format_big_time_unicode(&time_str)
     } else {
-        format!("⏱️  {}", chronometer.display())
+        format_big_time(&time_str)
+    };
+    
+    // Create a multi-line paragraph for big digits
+    let time_text = if chronometer.is_paused {
+        format!("⏸️  PAUSED\n\n{}", big_time_lines.join("\n"))
+    } else {
+        format!("⏱️  RUNNING\n\n{}", big_time_lines.join("\n"))
     };
 
     let time_paragraph = Paragraph::new(time_text)
