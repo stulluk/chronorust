@@ -123,7 +123,7 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
     
-    - name: Create Release Assets
+    - name: Prepare Release Assets
       run: |
         mkdir -p release-assets
         for artifact in chronorust-*; do
@@ -131,7 +131,18 @@ jobs:
             cd "$artifact"
             for file in *; do
               if [ -f "$file" ]; then
-                cp "$file" "../release-assets/"
+                # Rename files with proper extensions
+                if [[ "$file" == "chronorust" ]]; then
+                  if [[ "$artifact" == *"windows"* ]]; then
+                    cp "$file" "../release-assets/chronorust-windows-x86_64.exe"
+                  elif [[ "$artifact" == *"macos"* ]]; then
+                    cp "$file" "../release-assets/chronorust-macos-x86_64"
+                  elif [[ "$artifact" == *"static"* ]]; then
+                    cp "$file" "../release-assets/chronorust-linux-x86_64-static"
+                  else
+                    cp "$file" "../release-assets/chronorust-linux-x86_64"
+                  fi
+                fi
               fi
             done
             cd ..
