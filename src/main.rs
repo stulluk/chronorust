@@ -266,7 +266,7 @@ fn ui(f: &mut Frame, chronometer: &Chronometer) {
         .split(f.size());
 
     // Title
-    let title = Paragraph::new("ChronoRust - High Precision Chronometer")
+    let title = Paragraph::new(format!("ChronoRust v{} - High Precision Chronometer", env!("CARGO_PKG_VERSION")))
         .style(
             Style::default()
                 .fg(Color::Cyan)
