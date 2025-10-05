@@ -15,8 +15,8 @@ A high-precision chronometer for Linux terminal built with Rust. This applicatio
 - **Keyboard Controls**: Simple key-based controls
 - **Cross-platform**: Works on Linux, Windows, and macOS
 - **Docker Support**: Containerized deployment
-- **Big Digits Display**: Large ASCII/Unicode characters for better visibility
-- **Terminal Compatibility**: Optimized for different terminal types
+- **Logging Support**: Optional session logging with `-C` parameter
+- **Lap Time Analysis**: Shows time differences between consecutive laps
 
 ## Installation
 
@@ -28,7 +28,7 @@ A high-precision chronometer for Linux terminal built with Rust. This applicatio
 ### Build from Source
 
 ```bash
-git clone https://github.com/yourusername/chronorust.git
+git clone https://github.com/stulluk/chronorust.git
 cd chronorust
 cargo build --release
 ```
@@ -62,13 +62,16 @@ cargo build --release --target x86_64-unknown-linux-musl
 
 The static binary is only ~1.1MB and requires no dependencies!
 
-### Terminal Compatibility
+### Logging Feature
 
-ChronoRust automatically detects your platform and uses the best display method:
+ChronoRust supports optional session logging:
 
-- **Linux/macOS**: ASCII art characters for maximum compatibility
-- **Windows**: Unicode box drawing characters for better appearance
-- **All Platforms**: Fallback to standard text if needed
+```bash
+# Run with logging enabled
+cargo run -- -C
+```
+
+This creates a log file named `ChronoRust-DD-MM-YY-HH-MM-SS-log.txt` in the current directory with session information, lap times, and events.
 
 ## Usage
 
@@ -81,9 +84,9 @@ ChronoRust automatically detects your platform and uses the best display method:
 
 ### Display Format
 
-- **Time Format**: `HH:MM:SS.mmm` (hours:minutes:seconds.milliseconds)
-- **Short Format**: `MM:SS.mmm` (for times under 1 hour)
-- **Lap Times**: Numbered list of recorded lap times
+- **Time Format**: `HH:MM:SS.mmm` (always shows hours, even if zero)
+- **Lap Times**: Numbered list of recorded lap times with time differences
+- **Lap Differences**: Shows `(Δ: HH:MM:SS.mmm)` between consecutive laps
 
 ### Example Session
 
@@ -98,6 +101,7 @@ ChronoRust automatically detects your platform and uses the best display method:
 
 - **Language**: Rust
 - **Dependencies**: 
+  - `ratatui` - Terminal UI framework
   - `crossterm` - Cross-platform terminal manipulation
   - `chrono` - Date and time handling
 - **Precision**: Millisecond-level timing using `std::time::Instant`
@@ -213,17 +217,22 @@ Controls: R - Reset | L - Lap | S - Pause/Resume | Q - Quit
 
 ### From Source
 ```bash
-git clone https://github.com/yourusername/chronorust.git
+git clone https://github.com/stulluk/chronorust.git
 cd chronorust
 cargo run
 ```
 
 ### With Docker
 ```bash
-git clone https://github.com/yourusername/chronorust.git
+git clone https://github.com/stulluk/chronorust.git
 cd chronorust
 docker-compose up
 ```
 
 ### Download Release
-Visit the [Releases](https://github.com/yourusername/chronorust/releases) page to download pre-built binaries for your platform.
+Visit the [Releases](https://github.com/stulluk/chronorust/releases) page to download pre-built binaries for your platform.
+
+### Pre-built Binaries
+- **Linux**: `chronorust-linux-x86_64-static` (portable static binary)
+- **Windows**: `chronorust-windows-x86_64.exe`
+- **macOS**: `chronorust-macos-x86_64`
