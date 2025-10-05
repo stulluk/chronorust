@@ -17,7 +17,6 @@ use std::{
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
-
 struct Chronometer {
     start_time: Option<Instant>,
     lap_times: Vec<String>,
