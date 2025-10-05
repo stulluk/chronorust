@@ -192,7 +192,10 @@ fn main() -> io::Result<()> {
     // Check for help flag
     let args: Vec<String> = env::args().collect();
     if args.contains(&"--help".to_string()) || args.contains(&"-h".to_string()) {
-        println!("ChronoRust v{} - High Precision Chronometer", env!("CARGO_PKG_VERSION"));
+        println!(
+            "ChronoRust v{} - High Precision Chronometer",
+            env!("CARGO_PKG_VERSION")
+        );
         println!();
         println!("A high-precision chronometer for Linux terminal built with Rust.");
         println!("Provides millisecond-level timing accuracy and supports up to 99 hours of measurement.");
