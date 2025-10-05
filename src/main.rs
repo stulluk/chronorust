@@ -14,6 +14,8 @@ struct Chronometer {
     start_time: Option<Instant>,
     lap_times: Vec<String>,
     is_running: bool,
+    is_paused: bool,
+    paused_duration: Duration,
 }
 
 impl Chronometer {
@@ -22,30 +24,56 @@ impl Chronometer {
             start_time: None,
             lap_times: Vec::new(),
             is_running: false,
+            is_paused: false,
+            paused_duration: Duration::new(0, 0),
         }
     }
 
     fn start(&mut self) {
         self.start_time = Some(Instant::now());
         self.is_running = true;
+        self.is_paused = false;
+        self.paused_duration = Duration::new(0, 0);
     }
 
     fn reset(&mut self) {
-        self.start_time = None;
+        self.start_time = Some(Instant::now());
         self.lap_times.clear();
-        self.is_running = false;
+        self.is_running = true;
+        self.is_paused = false;
+        self.paused_duration = Duration::new(0, 0);
+    }
+
+    fn pause(&mut self) {
+        if self.is_running && !self.is_paused {
+            self.paused_duration += self.start_time.unwrap().elapsed();
+            self.is_paused = true;
+        }
+    }
+
+    fn resume(&mut self) {
+        if self.is_running && self.is_paused {
+            self.start_time = Some(Instant::now());
+            self.is_paused = false;
+        }
     }
 
     fn add_lap(&mut self) {
-        if let Some(start) = self.start_time {
-            let elapsed = start.elapsed();
+        if self.is_running {
+            let elapsed = self.get_elapsed();
             let lap_time = self.format_duration(elapsed);
             self.lap_times.push(lap_time);
         }
     }
 
     fn get_elapsed(&self) -> Duration {
-        self.start_time.map(|start| start.elapsed()).unwrap_or_default()
+        if self.is_paused {
+            self.paused_duration
+        } else if let Some(start) = self.start_time {
+            self.paused_duration + start.elapsed()
+        } else {
+            Duration::new(0, 0)
+        }
     }
 
     fn format_duration(&self, duration: Duration) -> String {
@@ -90,7 +118,7 @@ fn main() -> io::Result<()> {
         cursor::MoveTo(0, 0),
         style::Print("ChronoRust - High Precision Chronometer"),
         cursor::MoveTo(0, 1),
-        style::Print("Press 'r' to reset, 't' to lap, 'q' to quit"),
+        style::Print("Press 'r' to reset, 'l' to lap, 's' to pause/resume, 'q' to quit"),
         cursor::MoveTo(0, 2),
         style::Print("=".repeat(50))
     )?;
@@ -122,7 +150,7 @@ fn main() -> io::Result<()> {
             )?;
         }
 
-        // Legend'ı göster
+        // Legend'ı göster (sadece bir kez)
         let legend_row = start_row + 1 + chronometer.lap_times.len() as u16 + 2;
         execute!(
             stdout,
@@ -131,8 +159,10 @@ fn main() -> io::Result<()> {
             style::Print("Controls: "),
             style::Print("R".bold().red()),
             style::Print(" - Reset | "),
-            style::Print("T".bold().yellow()),
+            style::Print("L".bold().yellow()),
             style::Print(" - Lap | "),
+            style::Print("S".bold().blue()),
+            style::Print(" - Pause/Resume | "),
             style::Print("Q".bold().red()),
             style::Print(" - Quit")
         )?;
@@ -149,9 +179,16 @@ fn main() -> io::Result<()> {
                     KeyCode::Char('r') | KeyCode::Char('R') => {
                         chronometer.reset();
                     }
-                    KeyCode::Char('t') | KeyCode::Char('T') => {
+                    KeyCode::Char('l') | KeyCode::Char('L') => {
                         if chronometer.is_running {
                             chronometer.add_lap();
+                        }
+                    }
+                    KeyCode::Char('s') | KeyCode::Char('S') => {
+                        if chronometer.is_paused {
+                            chronometer.resume();
+                        } else {
+                            chronometer.pause();
                         }
                     }
                     _ => {}
