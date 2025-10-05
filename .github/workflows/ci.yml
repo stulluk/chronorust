@@ -142,6 +142,9 @@ jobs:
                   else
                     cp "$file" "../release-assets/chronorust-linux-x86_64"
                   fi
+                elif [[ "$file" == "chronorust.exe" ]]; then
+                  # Handle Windows .exe files
+                  cp "$file" "../release-assets/chronorust-windows-x86_64.exe"
                 fi
               fi
             done
