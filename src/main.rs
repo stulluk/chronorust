@@ -84,7 +84,10 @@ impl Chronometer {
         let milliseconds = total_ms % 1_000;
 
         // Her zaman saat formatında göster
-        format!("{:02}:{:02}:{:02}.{:03}", hours, minutes, seconds, milliseconds)
+        format!(
+            "{:02}:{:02}:{:02}.{:03}",
+            hours, minutes, seconds, milliseconds
+        )
     }
 
     fn display(&self) -> String {
@@ -99,9 +102,9 @@ impl Chronometer {
 fn main() -> io::Result<()> {
     // Terminal'i raw mode'a al
     terminal::enable_raw_mode()?;
-    
+
     let mut stdout = stdout();
-    
+
     // Ekranı temizle ve cursor'u gizle
     execute!(stdout, terminal::Clear(ClearType::All), cursor::Hide)?;
 
@@ -201,7 +204,7 @@ fn main() -> io::Result<()> {
     // Terminal'i normal mode'a geri döndür
     execute!(stdout, cursor::Show)?;
     terminal::disable_raw_mode()?;
-    
+
     println!("\nChronoRust stopped. Goodbye!");
     Ok(())
 }
