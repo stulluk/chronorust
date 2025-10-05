@@ -2,6 +2,8 @@
 
 A high-precision chronometer for Linux terminal built with Rust. This application provides millisecond-level timing accuracy and supports up to 99 hours of measurement.
 
+![ChronoRust Terminal Interface](screenshots/chronorust.png)
+
 ## Features
 
 - **High Precision**: Millisecond accuracy (3 decimal places)
