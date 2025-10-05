@@ -87,6 +87,11 @@ jobs:
       if: matrix.os == 'ubuntu-latest' && matrix.target == 'x86_64-unknown-linux-musl'
       run: sudo apt update && sudo apt install -y musl-tools
     
+    - name: Install osslsigncode and OpenSSL (Windows only)
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install osslsigncode openssl -y
+    
     - name: Cache cargo registry
       uses: actions/cache@v3
       with:
@@ -107,6 +112,18 @@ jobs:
     
     - name: Build
       run: cargo build --release --target ${{ matrix.target }}
+    
+    - name: Sign Windows binary
+      if: matrix.os == 'windows-latest'
+      run: |
+        # Create a self-signed certificate for testing
+        openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=ChronoRust"
+        
+        # Sign the binary
+        osslsigncode sign -certs cert.pem -key key.pem -n "ChronoRust" -i "https://github.com/stulluk/chronorust" -t http://timestamp.digicert.com -in target/${{ matrix.target }}/release/chronorust.exe -out target/${{ matrix.target }}/release/chronorust-signed.exe
+        
+        # Replace original with signed version
+        mv target/${{ matrix.target }}/release/chronorust-signed.exe target/${{ matrix.target }}/release/chronorust.exe
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
