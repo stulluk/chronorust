@@ -2,7 +2,7 @@ use crossterm::{
     cursor,
     event::{self, Event, KeyCode, KeyEvent},
     execute,
-    style::{self, Color, Stylize},
+    style::{self, Stylize},
     terminal::{self, ClearType},
 };
 use std::{
@@ -81,6 +81,7 @@ fn main() -> io::Result<()> {
     execute!(stdout, terminal::Clear(ClearType::All), cursor::Hide)?;
 
     let mut chronometer = Chronometer::new();
+    chronometer.start(); // Otomatik olarak başlat
     let mut running = true;
 
     // Başlangıç mesajı
@@ -151,8 +152,6 @@ fn main() -> io::Result<()> {
                     KeyCode::Char('t') | KeyCode::Char('T') => {
                         if chronometer.is_running {
                             chronometer.add_lap();
-                        } else {
-                            chronometer.start();
                         }
                     }
                     _ => {}
