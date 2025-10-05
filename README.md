@@ -173,12 +173,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ChronoRust - High Precision Chronometer
 Press 'r' to reset, 'l' to lap, 's' to pause/resume, 'q' to quit
 ==================================================
-Time: 00:05.234
+Time: 00:01.309
 Lap Times:
-Lap 1: 00:02.156
-Lap 2: 00:03.078
 Controls: R - Reset | L - Lap | S - Pause/Resume | Q - Quit
 ```
+
+**Real Terminal Output**: The chronometer displays time in `HH:MM:SS.mmm` format with live updates. The interface shows the current time, lap times (when recorded), and control instructions at the bottom.
 
 ## Quick Start
 
