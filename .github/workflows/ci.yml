@@ -122,8 +122,9 @@ jobs:
         # Sign the binary
         osslsigncode sign -certs cert.pem -key key.pem -n "ChronoRust" -i "https://github.com/stulluk/chronorust" -t http://timestamp.digicert.com -in target/${{ matrix.target }}/release/chronorust.exe -out target/${{ matrix.target }}/release/chronorust-signed.exe
         
-        # Replace original with signed version
-        mv target/${{ matrix.target }}/release/chronorust-signed.exe target/${{ matrix.target }}/release/chronorust.exe
+        # Replace original with signed version (PowerShell compatible)
+        Remove-Item target/${{ matrix.target }}/release/chronorust.exe
+        Rename-Item target/${{ matrix.target }}/release/chronorust-signed.exe target/${{ matrix.target }}/release/chronorust.exe
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
