@@ -124,7 +124,7 @@ jobs:
         
         # Replace original with signed version (PowerShell compatible)
         Remove-Item target/${{ matrix.target }}/release/chronorust.exe
-        Rename-Item target/${{ matrix.target }}/release/chronorust-signed.exe target/${{ matrix.target }}/release/chronorust.exe
+        Move-Item target/${{ matrix.target }}/release/chronorust-signed.exe target/${{ matrix.target }}/release/chronorust.exe
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

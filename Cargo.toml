@@ -1,6 +1,6 @@
 [package]
 name = "chronorust"
-version = "0.2.19"
+version = "0.2.20"
 edition = "2021"
 description = "A high-precision chronometer for Linux terminal"
 authors = ["Your Name <your.email@example.com>"]
