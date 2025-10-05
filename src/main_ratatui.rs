@@ -1,12 +1,18 @@
 use crossterm::{
-    cursor,
     event::{self, Event, KeyCode, KeyEvent},
     execute,
-    style::{self, Stylize},
-    terminal::{self, ClearType},
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
+};
+use ratatui::{
+    backend::CrosstermBackend,
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    style::{Color, Modifier, Style},
+    text::{Line, Span},
+    widgets::{Block, Borders, List, ListItem, Paragraph},
+    Frame, Terminal,
 };
 use std::{
-    io::{self, stdout, Write},
+    io::{self, stdout},
     time::{Duration, Instant},
 };
 
@@ -83,7 +89,6 @@ impl Chronometer {
         let seconds = (total_ms % 60_000) / 1_000;
         let milliseconds = total_ms % 1_000;
 
-        // Always show in hour format
         format!(
             "{:02}:{:02}:{:02}.{:03}",
             hours, minutes, seconds, milliseconds
@@ -94,87 +99,29 @@ impl Chronometer {
         if self.is_running {
             self.format_duration(self.get_elapsed())
         } else {
-            "00:00.000".to_string()
+            "00:00:00.000".to_string()
         }
     }
 }
 
 fn main() -> io::Result<()> {
-    // Enable raw mode for terminal
+    // Setup terminal
     terminal::enable_raw_mode()?;
-
     let mut stdout = stdout();
-
-    // Clear screen and hide cursor
-    execute!(stdout, terminal::Clear(ClearType::All), cursor::Hide)?;
+    execute!(stdout, EnterAlternateScreen)?;
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
 
     let mut chronometer = Chronometer::new();
-    chronometer.start(); // Auto-start
+    chronometer.start();
     let mut running = true;
-    let mut legend_drawn = false;
 
-    // Initial message
-    execute!(
-        stdout,
-        cursor::MoveTo(0, 0),
-        style::Print("ChronoRust - High Precision Chronometer"),
-        cursor::MoveTo(0, 1),
-        style::Print("Press 'r' to reset, 'l' to lap, 's' to pause/resume, 'q' to quit"),
-        cursor::MoveTo(0, 2),
-        style::Print("=".repeat(50))
-    )?;
-
+    // Main loop
     while running {
-        // Update main chronometer display
-        let elapsed = chronometer.display();
-        execute!(
-            stdout,
-            cursor::MoveTo(0, 4),
-            terminal::Clear(ClearType::CurrentLine),
-            style::Print(format!("Time: {}", elapsed).bold().green())
-        )?;
+        terminal.draw(|f| ui(f, &chronometer))?;
 
-        // Show lap times
-        let start_row = 6;
-        execute!(
-            stdout,
-            cursor::MoveTo(0, start_row),
-            style::Print("Lap Times:")
-        )?;
-
-        for (i, lap_time) in chronometer.lap_times.iter().enumerate() {
-            execute!(
-                stdout,
-                cursor::MoveTo(0, start_row + 1 + i as u16),
-                terminal::Clear(ClearType::CurrentLine),
-                style::Print(format!("Lap {}: {}", i + 1, lap_time))
-            )?;
-        }
-
-        // Show legend (only once)
-        if !legend_drawn {
-            let legend_row = start_row + 1 + chronometer.lap_times.len() as u16 + 2;
-            execute!(
-                stdout,
-                cursor::MoveTo(0, legend_row),
-                terminal::Clear(ClearType::CurrentLine),
-                style::Print("Controls: "),
-                style::Print("R".bold().red()),
-                style::Print(" - Reset | "),
-                style::Print("L".bold().yellow()),
-                style::Print(" - Lap | "),
-                style::Print("S".bold().blue()),
-                style::Print(" - Pause/Resume | "),
-                style::Print("Q".bold().red()),
-                style::Print(" - Quit")
-            )?;
-            legend_drawn = true;
-        }
-
-        stdout.flush()?;
-
-        // Wait for key input
-        if event::poll(Duration::from_millis(10))? {
+        // Handle input
+        if event::poll(Duration::from_millis(50))? {
             if let Event::Key(KeyEvent { code, .. }) = event::read()? {
                 match code {
                     KeyCode::Char('q') | KeyCode::Char('Q') => {
@@ -201,10 +148,66 @@ fn main() -> io::Result<()> {
         }
     }
 
-    // Restore terminal to normal mode
-    execute!(stdout, cursor::Show)?;
+    // Restore terminal
+    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
     terminal::disable_raw_mode()?;
-
-    println!("\nChronoRust stopped. Goodbye!");
+    println!("ChronoRust stopped. Goodbye!");
     Ok(())
+}
+
+fn ui(f: &mut Frame, chronometer: &Chronometer) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(2)
+        .constraints([
+            Constraint::Length(3), // Title
+            Constraint::Length(3), // Time display
+            Constraint::Min(5),    // Lap times
+            Constraint::Length(3), // Controls
+        ])
+        .split(f.size());
+
+    // Title
+    let title = Paragraph::new("ChronoRust - High Precision Chronometer")
+        .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::ALL));
+    f.render_widget(title, chunks[0]);
+
+    // Time display
+    let time_text = if chronometer.is_paused {
+        format!("⏸️  {}", chronometer.display())
+    } else {
+        format!("⏱️  {}", chronometer.display())
+    };
+    
+    let time_paragraph = Paragraph::new(time_text)
+        .style(Style::default().fg(Color::Green).add_modifier(Modifier::BOLD))
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::ALL).title("Time"));
+    f.render_widget(time_paragraph, chunks[1]);
+
+    // Lap times
+    let lap_items: Vec<ListItem> = chronometer
+        .lap_times
+        .iter()
+        .enumerate()
+        .map(|(i, lap_time)| {
+            ListItem::new(format!("Lap {}: {}", i + 1, lap_time))
+                .style(Style::default().fg(Color::Yellow))
+        })
+        .collect();
+
+    let lap_list = List::new(lap_items)
+        .block(Block::default().borders(Borders::ALL).title("Lap Times"))
+        .highlight_style(Style::default().add_modifier(Modifier::BOLD));
+    f.render_widget(lap_list, chunks[2]);
+
+    // Controls
+    let controls_text = "Controls: R - Reset | L - Lap | S - Pause/Resume | Q - Quit";
+    let controls_paragraph = Paragraph::new(controls_text)
+        .style(Style::default().fg(Color::Gray))
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::ALL).title("Controls"));
+    f.render_widget(controls_paragraph, chunks[3]);
 }
