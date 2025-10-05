@@ -111,6 +111,7 @@ fn main() -> io::Result<()> {
     let mut chronometer = Chronometer::new();
     chronometer.start(); // Otomatik olarak başlat
     let mut running = true;
+    let mut legend_drawn = false;
 
     // Başlangıç mesajı
     execute!(
@@ -151,21 +152,24 @@ fn main() -> io::Result<()> {
         }
 
         // Legend'ı göster (sadece bir kez)
-        let legend_row = start_row + 1 + chronometer.lap_times.len() as u16 + 2;
-        execute!(
-            stdout,
-            cursor::MoveTo(0, legend_row),
-            terminal::Clear(ClearType::CurrentLine),
-            style::Print("Controls: "),
-            style::Print("R".bold().red()),
-            style::Print(" - Reset | "),
-            style::Print("L".bold().yellow()),
-            style::Print(" - Lap | "),
-            style::Print("S".bold().blue()),
-            style::Print(" - Pause/Resume | "),
-            style::Print("Q".bold().red()),
-            style::Print(" - Quit")
-        )?;
+        if !legend_drawn {
+            let legend_row = start_row + 1 + chronometer.lap_times.len() as u16 + 2;
+            execute!(
+                stdout,
+                cursor::MoveTo(0, legend_row),
+                terminal::Clear(ClearType::CurrentLine),
+                style::Print("Controls: "),
+                style::Print("R".bold().red()),
+                style::Print(" - Reset | "),
+                style::Print("L".bold().yellow()),
+                style::Print(" - Lap | "),
+                style::Print("S".bold().blue()),
+                style::Print(" - Pause/Resume | "),
+                style::Print("Q".bold().red()),
+                style::Print(" - Quit")
+            )?;
+            legend_drawn = true;
+        }
 
         stdout.flush()?;
 

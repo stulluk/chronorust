@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  chronorust:
+    build: .
+    container_name: chronorust
+    stdin_open: true
+    tty: true
+    volumes:
+      - /dev/tty:/dev/tty:rw
+    environment:
+      - TERM=xterm-256color
+    command: chronorust

@@ -8,8 +8,11 @@ A high-precision chronometer for Linux terminal built with Rust. This applicatio
 - **Long Duration Support**: Up to 99 hours of timing
 - **Real-time Display**: Live updating chronometer display
 - **Lap Times**: Record multiple lap times during a session
+- **Pause/Resume**: Stop and continue timing with state preservation
 - **Terminal UI**: Clean, colorful terminal interface
 - **Keyboard Controls**: Simple key-based controls
+- **Cross-platform**: Works on Linux, Windows, and macOS
+- **Docker Support**: Containerized deployment
 
 ## Installation
 
@@ -42,8 +45,9 @@ Or run the release binary:
 
 ### Controls
 
-- **T** - Start chronometer or record lap time
-- **R** - Reset chronometer and clear all lap times
+- **L** - Record lap time
+- **R** - Reset chronometer and restart
+- **S** - Pause/Resume chronometer
 - **Q** - Quit application
 
 ### Display Format
@@ -55,10 +59,11 @@ Or run the release binary:
 ### Example Session
 
 1. Start the application: `cargo run`
-2. Press **T** to start the chronometer
-3. Press **T** again to record lap times
-4. Press **R** to reset and start over
-5. Press **Q** to quit
+2. Chronometer starts automatically
+3. Press **L** to record lap times
+4. Press **S** to pause/resume
+5. Press **R** to reset and restart
+6. Press **Q** to quit
 
 ## Technical Details
 
@@ -69,16 +74,54 @@ Or run the release binary:
 - **Precision**: Millisecond-level timing using `std::time::Instant`
 - **Maximum Duration**: 99 hours (3,564,000,000 milliseconds)
 
+## Docker Support
+
+### Using Docker
+
+```bash
+# Build Docker image
+docker build -t chronorust .
+
+# Run with Docker
+docker run -it --rm chronorust
+
+# Using docker-compose
+docker-compose up
+```
+
+### Docker Features
+
+- Multi-stage build for optimized image size
+- Non-root user for security
+- Minimal runtime dependencies
+- Cross-platform support
+
+## GitHub Actions
+
+This project includes automated CI/CD pipeline:
+
+- **Testing**: Automated testing on push/PR
+- **Code Quality**: Clippy linting and formatting checks
+- **Cross-platform Builds**: Linux, Windows, macOS
+- **Release Automation**: Automatic binary releases
+- **Docker Builds**: Automated Docker image builds
+
 ## Development
 
 ### Project Structure
 
 ```
 chronorust/
-├── Cargo.toml          # Project configuration
+├── .github/
+│   └── workflows/
+│       └── ci.yml          # GitHub Actions workflow
 ├── src/
-│   └── main.rs         # Main application code
-└── README.md           # This file
+│   └── main.rs            # Main application code
+├── Cargo.toml             # Project configuration
+├── Dockerfile             # Docker configuration
+├── docker-compose.yml     # Docker Compose configuration
+├── .gitignore             # Git ignore rules
+└── README.md              # This file
 ```
 
 ### Building
@@ -95,6 +138,12 @@ cargo test
 
 # Check code
 cargo check
+
+# Format code
+cargo fmt
+
+# Lint code
+cargo clippy
 ```
 
 ## License
@@ -122,11 +171,30 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ```
 ChronoRust - High Precision Chronometer
-Press 'r' to reset, 't' to lap, 'q' to quit
+Press 'r' to reset, 'l' to lap, 's' to pause/resume, 'q' to quit
 ==================================================
 Time: 00:05.234
 Lap Times:
 Lap 1: 00:02.156
 Lap 2: 00:03.078
-Controls: R - Reset | T - Lap | Q - Quit
+Controls: R - Reset | L - Lap | S - Pause/Resume | Q - Quit
 ```
+
+## Quick Start
+
+### From Source
+```bash
+git clone https://github.com/yourusername/chronorust.git
+cd chronorust
+cargo run
+```
+
+### With Docker
+```bash
+git clone https://github.com/yourusername/chronorust.git
+cd chronorust
+docker-compose up
+```
+
+### Download Release
+Visit the [Releases](https://github.com/yourusername/chronorust/releases) page to download pre-built binaries for your platform.
