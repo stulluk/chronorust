@@ -83,11 +83,8 @@ impl Chronometer {
         let seconds = (total_ms % 60_000) / 1_000;
         let milliseconds = total_ms % 1_000;
 
-        if hours > 0 {
-            format!("{:02}:{:02}:{:02}.{:03}", hours, minutes, seconds, milliseconds)
-        } else {
-            format!("{:02}:{:02}.{:03}", minutes, seconds, milliseconds)
-        }
+        // Her zaman saat formatında göster
+        format!("{:02}:{:02}:{:02}.{:03}", hours, minutes, seconds, milliseconds)
     }
 
     fn display(&self) -> String {
