@@ -1,14 +1,14 @@
-use crossterm::{
-    event::{self, Event, KeyCode, KeyEvent},
-    execute,
-    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
-};
 use ratatui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame, Terminal,
+};
+use crossterm::{
+    event::{self, Event, KeyCode, KeyEvent},
+    execute,
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use std::{
     env,
