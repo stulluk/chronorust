@@ -10,6 +10,5 @@ keywords = ["chronometer", "timer", "terminal", "cli"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-crossterm = "0.27"
 chrono = "0.4"
 ratatui = "0.25"
